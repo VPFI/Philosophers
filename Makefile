@@ -6,7 +6,7 @@
 #    By: vperez-f <vperez-f@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/23 13:59:42 by vperez-f          #+#    #+#              #
-#    Updated: 2024/07/16 13:57:52 by vperez-f         ###   ########.fr        #
+#    Updated: 2024/07/25 20:18:04 by vperez-f         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ OBJ_DIR = obj/
 
 OBJ_PATH = obj
 
-CFLAGS = -Wall -Wextra -Werror -fsanitize=address -fsanitize=leak -O3
+CFLAGS = -Wall -Wextra -Werror #-g #-fsanitize=thread #-fsanitize=address -fsanitize=leak -O3
 
 CC = cc
 
