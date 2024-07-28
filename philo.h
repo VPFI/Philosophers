@@ -36,8 +36,8 @@ typedef struct s_global {
 	long long		start_time;
 	struct s_philo	*philo;
 	pthread_mutex_t	*forks;
-	pthread_mutex_t	printer;
-	//pthread_mutex_t	stop;
+	pthread_mutex_t	m_printer;
+	pthread_mutex_t	m_stop_flag;
 }	t_global;
 
 typedef struct s_philo {
@@ -47,8 +47,8 @@ typedef struct s_philo {
 	pthread_t			self;
 	pthread_mutex_t		*left_fork;
 	pthread_mutex_t		*right_fork;
-	//pthread_mutex_t		eat_time;
-	//pthread_mutex_t		n_meals;
+	pthread_mutex_t		m_last_eat;
+	pthread_mutex_t		m_times_eat;
 	struct	s_global	*global;
 }	t_philo;
 

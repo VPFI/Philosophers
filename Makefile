@@ -24,7 +24,7 @@ OBJ_DIR = obj/
 
 OBJ_PATH = obj
 
-CFLAGS = -Wall -Wextra -Werror #-g #-fsanitize=thread #-fsanitize=address -fsanitize=leak -O3
+CFLAGS = -Wall -Wextra -Werror #-O3 #-fsanitize=address -fsanitize=leak #-fsanitize=thread 
 
 CC = cc
 
