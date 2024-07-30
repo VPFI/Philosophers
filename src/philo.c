@@ -6,7 +6,7 @@
 /*   By: vperez-f <vperez-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/05 13:51:46 by vperez-f          #+#    #+#             */
-/*   Updated: 2024/07/25 20:44:56 by vperez-f         ###   ########.fr       */
+/*   Updated: 2024/07/30 15:22:19 by vperez-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ void	philo_sleep(t_philo *philo)
 	ft_sleep(philo->global->time_sleep, philo->global);
 }
 
-void	eat(t_philo *philo)
+void	eat_odd(t_philo *philo)
 {
 	writer(THINK, philo->id, philo->global);
 	pthread_mutex_lock(philo->left_fork);
@@ -101,21 +101,46 @@ void	eat(t_philo *philo)
 	pthread_mutex_unlock(&philo->m_times_eat);
 }
 
+void	eat_even(t_philo *philo)
+{
+	writer(THINK, philo->id, philo->global);
+	pthread_mutex_lock(philo->right_fork);
+	writer(FORK, philo->id, philo->global);
+	pthread_mutex_lock(philo->left_fork);
+	writer(FORK, philo->id, philo->global);
+	writer(EAT, philo->id, philo->global);
+	ft_sleep(philo->global->time_sleep, philo->global);
+	pthread_mutex_unlock(philo->right_fork);
+	pthread_mutex_unlock(philo->left_fork);
+	pthread_mutex_lock(&philo->m_last_eat);
+	philo->last_eat = get_time();
+	pthread_mutex_unlock(&philo->m_last_eat);
+	pthread_mutex_lock(&philo->m_times_eat);
+	philo->times_eat += 1;
+	pthread_mutex_unlock(&philo->m_times_eat);
+}
+
 void*	routine(void *args)
 {
 	t_philo *philo;
 
 	philo = args;
-	philo->last_eat = get_time();
 	pthread_mutex_lock(&philo->global->m_stop_flag);
+	pthread_mutex_lock(&philo->m_last_eat);
+	philo->last_eat = get_time();
+	pthread_mutex_unlock(&philo->m_last_eat);
 	while (!(philo->global->stop_flag))
 	{
 		pthread_mutex_unlock(&philo->global->m_stop_flag);
-		eat(philo);
+		if (philo->id % 2)
+			eat_odd(philo);
+		else
+			eat_even(philo);
 		philo_sleep(philo);
 		pthread_mutex_lock(&philo->global->m_stop_flag);
 	}
 	pthread_mutex_unlock(&philo->global->m_stop_flag);
+	//printf("%i ENDED\n", philo->id);
 	return (NULL);
 }
 
@@ -125,11 +150,12 @@ int	create_philos(t_global *global)
 
 	i = 0;
 	global->philo = (t_philo *)calloc(global->philo_amount, sizeof(t_philo));
-	global->start_time = get_time();
+	if (!global->philo)
+		return (1);
 	pthread_mutex_lock(&global->m_stop_flag);
 	while(!global->stop_flag && i < global->philo_amount)
 	{
-		pthread_mutex_unlock(&global->m_stop_flag);
+		//pthread_mutex_unlock(&global->m_stop_flag);
 		global->philo[i].global = global;
 		global->philo[i].id = i;
 		global->philo[i].left_fork = &global->forks[i];
@@ -141,10 +167,12 @@ int	create_philos(t_global *global)
 			global->philo[i].right_fork = &global->forks[i - 1];
 		if (pthread_create(&(global->philo[i].self), NULL, &routine, (void *)&global->philo[i]))
 			return (1);
-		ft_sleep(10, global);
+		//ft_sleep(10, global);
 		i++;
-		pthread_mutex_lock(&global->m_stop_flag);
+		//pthread_mutex_lock(&global->m_stop_flag);
 	}
+	printf("Created philos\n");
+	global->start_time = get_time();
 	return (pthread_mutex_unlock(&global->m_stop_flag), 0);
 }
 
@@ -154,6 +182,8 @@ int	create_forks(t_global *global)
 
 	i = 0;
 	global->forks = (pthread_mutex_t *)calloc((global->philo_amount), sizeof(pthread_mutex_t));
+	if (!global->forks)
+		return (1);
 	while (i < global->philo_amount)
 	{
 		if (pthread_mutex_init(&global->forks[i], NULL))
@@ -185,7 +215,7 @@ int	supervise(t_global *global)
 	while (i < global->philo_amount)
 	{
 		pthread_mutex_lock(&global->philo[i].m_last_eat);
-		if ((get_time() - global->philo[i].last_eat) > global->time_die)
+		if (global->philo[i].last_eat > 0 && (get_time() - global->philo[i].last_eat) > global->time_die)
 		{
 			pthread_mutex_unlock(&global->philo[i].m_last_eat);
 			writer(DEATH, global->philo[i].id, global);
@@ -218,6 +248,8 @@ void	clean_global(t_global *global)
 	pthread_mutex_destroy(&global->m_stop_flag);
 	while (i < global->philo_amount)
 	{
+		pthread_mutex_destroy(&global->philo[i].m_last_eat);
+		pthread_mutex_destroy(&global->philo[i].m_times_eat);
 		pthread_mutex_destroy(&global->forks[i]);
 		i++;
 	}
@@ -237,18 +269,17 @@ int	main(int argc, char **argv)
 	//check number of philos...
 	init_global(&global, argv);
 	if (create_forks(&global))
-		return (1);
+		exit (1);
 	if (create_philos(&global))
-		return (1);
+		exit (1);
 	while (1)
 		if (supervise(&global))
 			break;
+	printf("%lli Threads terminated\n", diff_time(global.start_time));
 	while (i < global.philo_amount)
 	{
-		pthread_mutex_destroy(&global.philo[i].m_last_eat);
-		pthread_mutex_destroy(&global.philo[i].m_times_eat);
 		if (pthread_join(global.philo[i].self, NULL))
-			return (1);
+			exit (1);
 		//printf("joined %i\n", global.philo[i].id);
 		i++;
 	}
