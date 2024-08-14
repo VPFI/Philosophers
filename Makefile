@@ -6,15 +6,13 @@
 #    By: vperez-f <vperez-f@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/23 13:59:42 by vperez-f          #+#    #+#              #
-#    Updated: 2024/07/30 14:39:49 by vperez-f         ###   ########.fr        #
+#    Updated: 2024/08/14 17:37:18 by vperez-f         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-END=\033[0m
-
 NAME = philo
 
-CFILES = philo.c
+CFILES = philo.c arg_checker.c
 
 OFILES = $(CFILES:%.c=%.o)
 
@@ -34,7 +32,7 @@ all: $(NAME)
 
 $(NAME): $(OBJ)
 	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
-	@printf "\n$(NAME) COMPILED!\n$(END)"
+	@printf "\n$(NAME) COMPILED!\n"
 
 $(OBJ_DIR)%.o: src/%.c philo.h Makefile
 	@mkdir -p $(OBJ_PATH)
