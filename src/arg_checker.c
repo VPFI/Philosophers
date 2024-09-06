@@ -6,23 +6,11 @@
 /*   By: vperez-f <vperez-f@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/10 17:21:25 by vperez-f          #+#    #+#             */
-/*   Updated: 2024/08/14 17:40:57 by vperez-f         ###   ########.fr       */
+/*   Updated: 2024/09/02 16:10:15 by vperez-f         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../philo.h"
-
-size_t	ft_strlen(const char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str[i] != '\0')
-	{
-		i++;
-	}
-	return (i);
-}
 
 int	ft_isdigit(int c)
 {

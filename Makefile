@@ -6,13 +6,18 @@
 #    By: vperez-f <vperez-f@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/02/23 13:59:42 by vperez-f          #+#    #+#              #
-#    Updated: 2024/08/14 17:37:18 by vperez-f         ###   ########.fr        #
+#    Updated: 2024/09/06 13:37:32 by vperez-f         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = philo
 
-CFILES = philo.c arg_checker.c
+CFILES = 	philo.c 				\
+			philo_routine.c			\
+			arg_checker.c 			\
+			sleep_and_time_utils.c 	\
+			simul_utils.c			\
+			init_structs.c
 
 OFILES = $(CFILES:%.c=%.o)
 
